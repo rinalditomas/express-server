@@ -55,11 +55,9 @@ app.post('/webhook', async (req, res) => {
     'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
     JSON.stringify(req.body, null, 2)
   );
-  const message = req.body.entry[0].changes[0].value.messages[0].text.body;
+  const message = req.body.entry[0].changes[0].value.messages[0]
 
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
-  console.log(typeof message);
-
   if (message.type === 'text') {
     const hoursWorked = parseFloat(message.text.body);
 
