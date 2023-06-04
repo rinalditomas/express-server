@@ -47,7 +47,7 @@ function sendMessage() {
   return axios(config);
 }
 
-app.post('/ask', (req, res) => {
+app.get('/ask', (req, res) => {
   sendMessage();
 });
 
