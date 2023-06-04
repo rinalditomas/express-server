@@ -21,6 +21,8 @@ api.get('/hello', (req, res) => {
   res.status(200).send({ message: 'hello world' });
 });
 
+const token = process.env.WHATSAPP_TOKEN;
+
 
 app.post('/webhook', (req, res) => {
   // Parse the request body from the POST
