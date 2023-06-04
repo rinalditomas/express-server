@@ -70,7 +70,7 @@ async function generatePDF(hours) {
   const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
 
-  const indexPath = path.resolve(__dirname, 'index.html');
+const indexPath = path.resolve(__dirname, '../src/index.html');
 
   // Navigate to the HTML file or URL
   await page.goto('file://' + indexPath);
