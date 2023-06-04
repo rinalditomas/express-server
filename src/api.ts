@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 var axios = require('axios');
-const generatePDF = require('./');
+const generatePDF = require('./generate_pdf');
 
 export const app = express();
 
