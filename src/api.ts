@@ -3,7 +3,6 @@ import cors from 'cors';
 var axios = require('axios');
 const generatePDF = require('./');
 
-
 export const app = express();
 
 app.use(cors({ origin: true }));
@@ -64,10 +63,14 @@ app.post('/webhook', async (req, res) => {
   if (message.type === 'text') {
     const hoursWorked = parseFloat(message.text.body);
 
+    console.log(hoursWorked);
+    console.log(typeof hoursWorked);
+
     if (!isNaN(hoursWorked)) {
       // Call the function to generate the PDF
       const pdfPath = await generatePDF(hoursWorked);
 
+      console.log(pdfPath);
       // Send the generated PDF to the user
       const messageData = {
         recipient_type: 'individual',
@@ -79,6 +82,7 @@ app.post('/webhook', async (req, res) => {
         }
       };
 
+      console.log("THIS IS MESSAGE DATA",messageData)
       const config = {
         method: 'post',
         url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
