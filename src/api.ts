@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import axios from 'axios';
+// var axios = require('axios');
 
 export const app = express();
 
@@ -21,33 +21,33 @@ api.get('/hello', (req, res) => {
   res.status(200).send({ message: 'hello world' });
 });
 
-const token = process.env.WHATSAPP_TOKEN;
+// const token = process.env.WHATSAPP_TOKEN;
 
-function sendMessage() {
-  const data = {
-    messaging_product: 'whatsapp',
-    to: `${process.env.PHONE_TO}`,
-    type: 'template',
-    template: {
-      name: 'hello_world',
-      language: {
-        code: 'en_US'
-      }
-    }
-  };
+// function sendMessage() {
+//   const data = {
+//     messaging_product: 'whatsapp',
+//     to: `${process.env.PHONE_TO}`,
+//     type: 'template',
+//     template: {
+//       name: 'hello_world',
+//       language: {
+//         code: 'en_US'
+//       }
+//     }
+//   };
 
-  const config = {
-    method: 'post',
-    url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
-    headers: {
-      Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify(data)
-  };
+//   const config = {
+//     method: 'post',
+//     url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
+//     headers: {
+//       Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+//       'Content-Type': 'application/json'
+//     },
+//     data: JSON.stringify(data)
+//   };
 
-  return axios(config);
-}
+//   return axios(config);
+// }
 
 app.post('/webhook', (req, res) => {
   // Check the Incoming webhook message
