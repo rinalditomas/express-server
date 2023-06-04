@@ -55,7 +55,7 @@ app.post('/webhook', async (req, res) => {
     'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
     JSON.stringify(req.body, null, 2)
   );
-  const message = req.body.entry[0].changes[0].value.messages[0]
+  const message = req.body.entry[0].changes[0].value.messages[0];
 
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
   if (message.type === 'text') {
@@ -80,7 +80,7 @@ app.post('/webhook', async (req, res) => {
         }
       };
 
-      console.log("THIS IS MESSAGE DATA",messageData)
+      console.log('THIS IS MESSAGE DATA', messageData);
       const config = {
         method: 'post',
         url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
@@ -91,7 +91,13 @@ app.post('/webhook', async (req, res) => {
         data: JSON.stringify(messageData)
       };
 
-      await axios(config);
+      try {
+        let responseFromChat = await axios(config);
+
+        console.log(responseFromChat.data);
+      } catch (error) {
+        console.log(error);
+      }
 
       // ... continue with the remaining steps of your workflow ...
 
