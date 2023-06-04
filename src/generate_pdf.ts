@@ -1,6 +1,5 @@
-const puppeteer = require('puppeteer');
-const path = require('path');
-
+import puppeteer from 'puppeteer';
+import path = require('path');
 declare const document: any; // Add this line to resolve the error
 
 const months = [
