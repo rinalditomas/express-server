@@ -119,7 +119,6 @@ async function generatePDF(hours) {
 
   // Wait for any necessary content to load
   await page.waitForSelector('#pdf-content');
-  const scale = 0.75; // Adjust the scale factor as needed
 
   const pdfPath = 'invoice.pdf';
 
