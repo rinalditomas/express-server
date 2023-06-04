@@ -69,7 +69,7 @@ app.post('/webhook', async (req, res) => {
         type: 'document',
         document: {
           id: 'your-media-id',
-          filename: 'invoice.pdf'
+          filename: pdfPath
         }
       };
 
