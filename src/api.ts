@@ -25,8 +25,7 @@ const token = process.env.WHATSAPP_TOKEN;
 
 
 app.post('/webhook', (req, res) => {
-  // Parse the request body from the POST
-  let body = req.body;
+
 
   // Check the Incoming webhook message
   console.log(JSON.stringify(req.body, null, 2));
