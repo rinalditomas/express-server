@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-// var axios = require('axios');
+var axios = require('axios');
+const generatePDF = require('./');
+
 
 export const app = express();
 
@@ -21,75 +23,79 @@ api.get('/hello', (req, res) => {
   res.status(200).send({ message: 'hello world' });
 });
 
-// const token = process.env.WHATSAPP_TOKEN;
+function sendMessage() {
+  const data = {
+    messaging_product: 'whatsapp',
+    to: `${process.env.PHONE_TO}`,
+    type: 'text',
+    text: {
+      preview_url: false,
+      body: 'How many hours did you work the past month?'
+    }
+  };
 
-// function sendMessage() {
-//   const data = {
-//     messaging_product: 'whatsapp',
-//     to: `${process.env.PHONE_TO}`,
-//     type: 'template',
-//     template: {
-//       name: 'hello_world',
-//       language: {
-//         code: 'en_US'
-//       }
-//     }
-//   };
+  const config = {
+    method: 'post',
+    url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
+    headers: {
+      Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(data)
+  };
 
-//   const config = {
-//     method: 'post',
-//     url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
-//     headers: {
-//       Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-//       'Content-Type': 'application/json'
-//     },
-//     data: JSON.stringify(data)
-//   };
+  return axios(config);
+}
 
-//   return axios(config);
-// }
+app.post('/ask', (req, res) => {
+  sendMessage();
+});
 
-app.post('/webhook', (req, res) => {
-  // Check the Incoming webhook message
-  console.log(
-    'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
-    JSON.stringify(req.body, null, 2)
-  );
+app.post('/webhook', async (req, res) => {
+  const message = req.body.entry[0].changes[0].value.messages[0];
+  console.log(typeof message);
 
-  console.log(req.body.entry[0].changes[0].value.messages[0].text.body);
-  // // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
-  // if (req.body.object) {
-  //   if (
-  //     req.body.entry &&
-  //     req.body.entry[0].changes &&
-  //     req.body.entry[0].changes[0] &&
-  //     req.body.entry[0].changes[0].value.messages &&
-  //     req.body.entry[0].changes[0].value.messages[0]
-  //   ) {
-  //     let phone_number_id =
-  //       req.body.entry[0].changes[0].value.metadata.phone_number_id;
-  //     let from = req.body.entry[0].changes[0].value.messages[0].from; // extract the phone number from the webhook payload
-  //     let msg_body = req.body.entry[0].changes[0].value.messages[0].text.body; // extract the message text from the webhook payload
-  //     axios({
-  //       method: 'POST', // Required, HTTP method, a string, e.g. POST, GET
-  //       url:
-  //         'https://graph.facebook.com/v12.0/' +
-  //         phone_number_id +
-  //         '/messages?access_token=' +
-  //         token,
-  //       data: {
-  //         messaging_product: 'whatsapp',
-  //         to: from,
-  //         text: { body: 'Ack: ' + msg_body }
-  //       },
-  //       headers: { 'Content-Type': 'application/json' }
-  //     });
-  //   }
-  //   res.sendStatus(200);
-  // } else {
-  //   // Return a '404 Not Found' if event is not from a WhatsApp API
-  //   res.sendStatus(404);
-  // }
+  if (message.type === 'text') {
+    const hoursWorked = parseFloat(message.text.body);
+
+    if (!isNaN(hoursWorked)) {
+      // Call the function to generate the PDF
+      const pdfPath = await generatePDF(hoursWorked);
+
+      // Send the generated PDF to the user
+      const messageData = {
+        recipient_type: 'individual',
+        to: process.env.PHONE_TO,
+        type: 'document',
+        document: {
+          id: 'your-media-id',
+          filename: 'invoice.pdf'
+        }
+      };
+
+      const config = {
+        method: 'post',
+        url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
+        headers: {
+          Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify(messageData)
+      };
+
+      await axios(config);
+
+      // ... continue with the remaining steps of your workflow ...
+
+      res.sendStatus(200);
+    } else {
+      console.log(
+        'Invalid input. Please enter a valid number of hours worked.'
+      );
+      // Handle the case when the user enters an invalid number
+      res.sendStatus(400);
+    }
+  }
 });
 
 // Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+
+    <title>Document</title>
+</head>
+<style>
+    /* #pdf-content {
+        width: 21cm;
+        height: 29.7cm;
+        margin: 30mm 45mm 30mm 45mm;
+     
+    } */
+</style>
+
+<body>
+    <div class="w-full h-screen flex flex-col" id="pdf-content">
+        <!-- header -->
+
+        <div class="grid grid-cols-2 mt-36 px-20">
+            <div class="">
+                <span id="invoice-number" class="text-8xl text-gray-400">Nº 0016</span>
+            </div>
+            <div class=" flex flex-col">
+                <h1 class="text-8xl font-semibold">Invoice</h1>
+                <div class="mt-24 mb-8">
+                    <h1 class="text-2xl font-semibold">Issued</h1>
+                    <h1 id='issue-date' class="text-2xl font-light">19 may, 2023</h1>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="">
+                        <span class="text-2xl font-semibold">From</span>
+                        <h1 class="text-2xl font-light">Tomas Rinaldi Scatena</h1>
+                        <h1 class="text-2xl font-light">3 Templebar, Apartment 7,</h1>
+                        <h1 class="text-2xl font-light">D02T264, Dublin, Ireland.</h1>
+                        <h1 class="text-2xl font-light">+353833211746</h1>
+                        <span class="text-2xl font-semibold">Tax registration No:</span>
+                        <h1 class="text-2xl font-light">2117996JA</h1>
+                        <span class="text-2xl font-semibold">VAT No:</span>
+                        <h1 class="text-2xl font-light">IE-2117996JA</h1>
+
+                    </div>
+                    <div class="">
+                        <span class="text-2xl font-semibold">To / Service Recipient:</span>
+                        <h1 class="text-2xl font-light">Pharm-IT GmbH</h1>
+                        <h1 class="text-2xl font-light">Bahnhofstr. 3A</h1>
+                        <h1 class="text-2xl font-light">82166 Gräfelfing</h1>
+                        <h1 class="text-2xl font-light">Germany</h1>
+                        <h1 class="text-2xl font-light">VAT-Nr. DE286403181</h1>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- table -->
+
+        <div class="px-20 mt-20  ">
+            <div class="grid grid-cols-6 pb-3">
+                <h1 class="text-2xl font-semibold col-span-3">Item</h1>
+                <h1 class="text-2xl text-center font-semibold">Cost</h1>
+                <h1 class="text-2xl text-center font-semibold">Qty</h1>
+                <h1 class="text-2xl text-right font-semibold">Total</h1>
+            </div>
+            <hr class="border-t-4 border-black  ">
+
+            <div class="grid grid-cols-6 pt-4 pb-4">
+                <div class="w-full col-span-3">
+                    <h1 class="text-2xl font-light w-full">Professional service</h1>
+                    <h1 id="working-range" class="text-2xl font-light w-full">(from 3 apr 2023 to 28 apr 2023)</h1>
+
+                </div>
+                <div class="flex justify-center">
+                    <h1 class="text-2xl font-light text-center">€</h1>
+                    <h1 id="hourly-price" class="text-2xl font-light text-center">20</h1>
+                </div>
+                <h1 id="hours-worked" class="text-2xl font-light text-center">144</h1>
+                <div class="flex justify-end">
+                    <h1 class="text-2xl font-light text-right">€</h1>
+                    <h1 id='total-hours' class="text-2xl font-light text-right">2880</h1>
+
+                </div>
+            </div>
+            <hr class="border-t-2 border-gray-300  ">
+
+        </div>
+        <!-- footer -->
+        <div class="grid grid-cols-2 pb-20  px-20 mt-auto">
+            <div class="flex flex-col justify-end mb-40 space-y-8 ">
+                <h1 class="text-2xl font-semibold">Terms & Conditions</h1>
+                <h1 class="text-2xl font-light">Reverse charge transaction</h1>
+            </div>
+            <div class=" flex flex-col space-y-20">
+                <div>
+                    <div class=" space-y-12">
+                        <div class="w-full  flex justify-between">
+                            <span class="text-2xl font-semibold">Subtotal without VAT</span>
+                            <div>
+                                <span class="text-2xl font-light">€</span>
+                                <span id="total-before-tax" class="text-2xl font-light">2880</span>
+
+                            </div>
+                        </div>
+                        <div class="w-full  flex justify-between">
+                            <div class="flex">
+                                <span class="text-2xl font-semibold">VAT 0% of €</span>
+                                <span id="base-to-tax" class="text-2xl font-semibold">2880</span>
+
+                            </div>
+                            <span id="total-tax" class="text-2xl font-light">€0</span>
+                        </div>
+
+                    </div>
+                    <hr class="border-t-4 border-black mt-14 mb-8 ">
+                    <div class="w-full  flex justify-between">
+                        <span class="text-2xl font-semibold">Total</span>
+                        <div class="flex">
+                            <span class="text-2xl font-light">€</span>
+                            <span id="total-after-tax" class="text-2xl font-light">2880</span>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="space-y-8">
+                    <div class="w-full  flex justify-between">
+                        <span class="text-2xl font-semibold">IBAN</span>
+                        <span class="text-2xl font-light text-gray-400">IE23AIBK93102047566023</span>
+                    </div>
+                    <h1 class="text-2xl font-light">
+                        This invoice is to be paid by wire transfer only, unless agreed otherwise
+
+                    </h1>
+                    <div>
+
+                        <h1 class="text-2xl font-light">
+                            Thank you,
+
+                        </h1>
+                        <h1 class="text-2xl font-light">
+                            Tomas Rinaldi Scatena
+                        </h1>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
