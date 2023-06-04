@@ -71,6 +71,7 @@ app.post('/webhook', async (req, res) => {
       console.log(pdfPath);
       // Send the generated PDF to the user
       const messageData = {
+        messaging_product: 'whatsapp',
         recipient_type: 'individual',
         to: process.env.PHONE_TO,
         type: 'document',
