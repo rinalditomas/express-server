@@ -52,7 +52,13 @@ app.get('/ask', (req, res) => {
 });
 
 app.post('/webhook', async (req, res) => {
-  const message = req.body.entry[0].changes[0].value.messages[0];
+  console.log(
+    'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
+    JSON.stringify(req.body, null, 2)
+  );
+  const message = req.body.entry[0].changes[0].value.messages[0].text.body;
+
+  // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
   console.log(typeof message);
 
   if (message.type === 'text') {
