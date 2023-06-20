@@ -55,7 +55,7 @@ app.post('/webhook', async (req, res) => {
     'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
     JSON.stringify(req.body, null, 2)
   );
-  const message = req.body.entry[0].changes[0].value.messages[0];
+  const message = req.body.entry[0].changes[0].value;
 
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
   if (message.type === 'text') {
@@ -95,7 +95,7 @@ app.post('/webhook', async (req, res) => {
       try {
         let responseFromChat = await axios(config);
 
-        console.log(responseFromChat.data);
+        console.log(responseFromChat);
       } catch (error) {
         console.log(error);
       }
