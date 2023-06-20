@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 var axios = require('axios');
 const generatePDF = require('./generate_pdf');
+const fs = require('fs');
 
 export const app = express();
 
@@ -21,6 +22,28 @@ const api = express.Router();
 api.get('/hello', (req, res) => {
   res.status(200).send({ message: 'hello world' });
 });
+
+async function uploadMedia(mediaData, contentType, authToken) {
+  try {
+    const response = await axios.post(
+      'express-server-production-ebc4.up.railway.app:7924/v1/media',
+      mediaData,
+      {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': contentType
+        }
+      }
+    );
+
+    const mediaId = response.data.id;
+    console.log(`Media uploaded successfully. Media ID: ${mediaId}`);
+    return mediaId;
+  } catch (error) {
+    console.error('Failed to upload media:', error);
+    throw error;
+  }
+}
 
 function sendMessage() {
   const data = {
@@ -48,6 +71,13 @@ function sendMessage() {
 
 app.get('/ask', (req, res) => {
   sendMessage();
+});
+app.get('/media', (req, res) => {
+  const mediaData = fs.readFileSync('./invoice.pdf');
+  const contentType = 'image/jpeg';
+  const authToken = 'your-auth-token';
+
+  uploadMedia(mediaData, contentType, authToken);
 });
 
 app.post('/webhook', async (req, res) => {
