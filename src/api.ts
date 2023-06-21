@@ -77,7 +77,7 @@ app.get('/media', async (req, res) => {
 
   console.log(pdfPath);
   const mediaData = fs.readFileSync(pdfPath);
-  const contentType = 'image/jpeg';
+  const contentType = 'document';
   const authToken = 'your-auth-token';
 
   uploadMedia(mediaData, contentType, authToken);
