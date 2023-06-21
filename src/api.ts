@@ -26,7 +26,7 @@ api.get('/hello', (req, res) => {
 async function uploadMedia(mediaData, contentType, authToken) {
   try {
     const response = await axios.post(
-      'express-server-production-ebc4.up.railway.app:7924/v1/media',
+      'https://express-server-production-ebc4.up.railway.app:7924/v1/media',
       mediaData,
       {
         headers: {
