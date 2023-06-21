@@ -72,8 +72,11 @@ function sendMessage() {
 app.get('/ask', (req, res) => {
   sendMessage();
 });
-app.get('/media', (req, res) => {
-  const mediaData = fs.readFileSync('./invoice.pdf');
+app.get('/media', async (req, res) => {
+  const pdfPath = await generatePDF('176');
+
+  console.log(pdfPath);
+  const mediaData = fs.readFileSync(pdfPath);
   const contentType = 'image/jpeg';
   const authToken = 'your-auth-token';
 
