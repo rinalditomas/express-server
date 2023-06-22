@@ -54,6 +54,7 @@ app.get('/ask', (req, res) => {
 });
 app.get('/media', async (req, res) => {
   // Create a transporter using the default SMTP transport
+  console.log(process.env.EMAIL_PASSWORD);
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
