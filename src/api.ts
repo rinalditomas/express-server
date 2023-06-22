@@ -76,11 +76,15 @@ app.get('/media', async (req, res) => {
   const pdfPath = await generatePDF('176');
 
   console.log(pdfPath);
-  const mediaData = fs.readFileSync(pdfPath);
-  const contentType = 'document';
-  const authToken = process.env.ACCESS_TOKEN
+  try {
+    const mediaData = fs.readFileSync(pdfPath);
+    const contentType = 'document';
+    const authToken = process.env.ACCESS_TOKEN;
 
-  uploadMedia(mediaData, contentType, authToken);
+    await uploadMedia(mediaData, contentType, authToken);
+  } catch (error) {
+    console.error('Failed to read media file:', error);
+  }
 });
 
 app.post('/webhook', async (req, res) => {
