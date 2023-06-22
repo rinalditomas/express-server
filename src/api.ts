@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import { Resend } from 'resend';
+
 var axios = require('axios');
 const generatePDF = require('./generate_pdf');
 const fs = require('fs');
@@ -73,18 +75,31 @@ app.get('/ask', (req, res) => {
   sendMessage();
 });
 app.get('/media', async (req, res) => {
-  const pdfPath = await generatePDF('176');
-
-  console.log(pdfPath);
   try {
-    const mediaData = fs.readFileSync(pdfPath);
-    const contentType = 'document';
-    const authToken = process.env.ACCESS_TOKEN;
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await uploadMedia(mediaData, contentType, authToken);
+    resend.emails.send({
+      from: 'rinalditomas@gmail.com',
+      to: 'rinalditomas@gmail.com',
+      subject: 'Hello World',
+      html: '<p>Congrats on sending your <strong>SECOND email</strong>!</p>'
+    });
   } catch (error) {
-    console.error('Failed to read media file:', error);
+    console.log(error);
   }
+
+  // const pdfPath = await generatePDF('176');
+
+  // console.log(pdfPath);
+  // try {
+  //   const mediaData = fs.readFileSync(pdfPath);
+  //   const contentType = 'document';
+  //   const authToken = process.env.ACCESS_TOKEN;
+
+  //   await uploadMedia(mediaData, contentType, authToken);
+  // } catch (error) {
+  //   console.error('Failed to read media file:', error);
+  // }
 });
 
 app.post('/webhook', async (req, res) => {
