@@ -58,14 +58,14 @@ app.get('/media', async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'tomas.invoice@gmail.com', // Your Gmail email address
+      user: 'tomas.invoices@gmail.com', // Your Gmail email address
       pass: process.env.EMAIL_PASSWORD // Your Gmail password or an application-specific password if you have enabled 2-step verification
     }
   });
 
   // Define the email options
   const mailOptions = {
-    from: 'tomas.invoice@gmail.com', // Sender email address
+    from: 'tomas.invoices@gmail.com', // Sender email address
     to: 'rinalditomas@gmail.com', // Recipient email address
     subject: 'Test Email', // Email subject
     text: 'Hello, this is a test email!' // Plain text body
