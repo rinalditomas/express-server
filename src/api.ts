@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { Resend } from 'resend';
+const nodemailer = require('nodemailer');
 
 var axios = require('axios');
 const generatePDF = require('./generate_pdf');
@@ -25,27 +25,27 @@ api.get('/hello', (req, res) => {
   res.status(200).send({ message: 'hello world' });
 });
 
-async function uploadMedia(mediaData, contentType, authToken) {
-  try {
-    const response = await axios.post(
-      'https://express-server-production-ebc4.up.railway.app/webhook/v1/media',
-      mediaData,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          'Content-Type': contentType
-        }
-      }
-    );
+// async function uploadMedia(mediaData, contentType, authToken) {
+//   try {
+//     const response = await axios.post(
+//       'https://express-server-production-ebc4.up.railway.app/webhook/v1/media',
+//       mediaData,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${authToken}`,
+//           'Content-Type': contentType
+//         }
+//       }
+//     );
 
-    const mediaId = response.data.id;
-    console.log(`Media uploaded successfully. Media ID: ${mediaId}`);
-    return mediaId;
-  } catch (error) {
-    console.error('Failed to upload media:', error);
-    throw error;
-  }
-}
+//     const mediaId = response.data.id;
+//     console.log(`Media uploaded successfully. Media ID: ${mediaId}`);
+//     return mediaId;
+//   } catch (error) {
+//     console.error('Failed to upload media:', error);
+//     throw error;
+//   }
+// }
 
 function sendMessage() {
   const data = {
@@ -75,18 +75,31 @@ app.get('/ask', (req, res) => {
   sendMessage();
 });
 app.get('/media', async (req, res) => {
-  try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
+  // Create a transporter using the default SMTP transport
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'tomas.invoice@gmail.com', // Your Gmail email address
+      pass: process.env.EMAIL_PASSWORD // Your Gmail password or an application-specific password if you have enabled 2-step verification
+    }
+  });
 
-    resend.emails.send({
-      from: 'rinalditomas@gmail.com',
-      to: 'rinalditomas@gmail.com',
-      subject: 'Hello World',
-      html: '<p>Congrats on sending your <strong>SECOND email</strong>!</p>'
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  // Define the email options
+  const mailOptions = {
+    from: 'tomas.invoice@gmail.com', // Sender email address
+    to: 'rinalditomas@gmail.com', // Recipient email address
+    subject: 'Test Email', // Email subject
+    text: 'Hello, this is a test email!' // Plain text body
+  };
+
+  // Send the email
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
 
   // const pdfPath = await generatePDF('176');
 
