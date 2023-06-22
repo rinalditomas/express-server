@@ -55,8 +55,8 @@ app.get('/ask', (req, res) => {
 app.get('/media', async (req, res) => {
   // Create a transporter using the default SMTP transport
 
-  let pdfPath = generatePDF('120');
-  console.log(process.env.EMAIL_PASSWORD);
+  let pdfPath = await generatePDF('120');
+  console.log('PDF PATH', pdfPath);
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
