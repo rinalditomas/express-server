@@ -3,8 +3,8 @@ import cors from 'cors';
 const nodemailer = require('nodemailer');
 
 var axios = require('axios');
-const generatePDF = require('./generate_pdf');
-const fs = require('fs');
+// const generatePDF = require('./generate_pdf');
+// const fs = require('fs');
 
 export const app = express();
 
@@ -24,28 +24,6 @@ const api = express.Router();
 api.get('/hello', (req, res) => {
   res.status(200).send({ message: 'hello world' });
 });
-
-// async function uploadMedia(mediaData, contentType, authToken) {
-//   try {
-//     const response = await axios.post(
-//       'https://express-server-production-ebc4.up.railway.app/webhook/v1/media',
-//       mediaData,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${authToken}`,
-//           'Content-Type': contentType
-//         }
-//       }
-//     );
-
-//     const mediaId = response.data.id;
-//     console.log(`Media uploaded successfully. Media ID: ${mediaId}`);
-//     return mediaId;
-//   } catch (error) {
-//     console.error('Failed to upload media:', error);
-//     throw error;
-//   }
-// }
 
 function sendMessage() {
   const data = {
@@ -100,19 +78,6 @@ app.get('/media', async (req, res) => {
       console.log('Email sent:', info.response);
     }
   });
-
-  // const pdfPath = await generatePDF('176');
-
-  // console.log(pdfPath);
-  // try {
-  //   const mediaData = fs.readFileSync(pdfPath);
-  //   const contentType = 'document';
-  //   const authToken = process.env.ACCESS_TOKEN;
-
-  //   await uploadMedia(mediaData, contentType, authToken);
-  // } catch (error) {
-  //   console.error('Failed to read media file:', error);
-  // }
 });
 
 app.post('/webhook', async (req, res) => {
@@ -122,60 +87,61 @@ app.post('/webhook', async (req, res) => {
   );
   const message = req.body.entry[0].changes[0].value;
 
+  console.log(message);
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
-  if (message.type === 'text') {
-    const hoursWorked = parseFloat(message.text.body);
+  // if (message.type === 'text') {
+  //   const hoursWorked = parseFloat(message.text.body);
 
-    console.log(hoursWorked);
-    console.log(typeof hoursWorked);
+  //   console.log(hoursWorked);
+  //   console.log(typeof hoursWorked);
 
-    if (!isNaN(hoursWorked)) {
-      // Call the function to generate the PDF
-      const pdfPath = await generatePDF(hoursWorked);
+  //   if (!isNaN(hoursWorked)) {
+  //     // Call the function to generate the PDF
+  //     const pdfPath = await generatePDF(hoursWorked);
 
-      console.log(pdfPath);
-      // Send the generated PDF to the user
-      const messageData = {
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
-        to: process.env.PHONE_TO,
-        type: 'document',
-        document: {
-          id: 'your-media-id',
-          filename: pdfPath
-        }
-      };
+  //     console.log(pdfPath);
+  //     // Send the generated PDF to the user
+  //     const messageData = {
+  //       messaging_product: 'whatsapp',
+  //       recipient_type: 'individual',
+  //       to: process.env.PHONE_TO,
+  //       type: 'document',
+  //       document: {
+  //         id: 'your-media-id',
+  //         filename: pdfPath
+  //       }
+  //     };
 
-      console.log('THIS IS MESSAGE DATA', messageData);
-      const config = {
-        method: 'post',
-        url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
-        headers: {
-          Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        data: JSON.stringify(messageData)
-      };
+  //     console.log('THIS IS MESSAGE DATA', messageData);
+  //     const config = {
+  //       method: 'post',
+  //       url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
+  //       headers: {
+  //         Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+  //         'Content-Type': 'application/json'
+  //       },
+  //       data: JSON.stringify(messageData)
+  //     };
 
-      try {
-        let responseFromChat = await axios(config);
+  //     try {
+  //       let responseFromChat = await axios(config);
 
-        console.log(responseFromChat);
-      } catch (error) {
-        console.log(error);
-      }
+  //       console.log(responseFromChat);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
 
-      // ... continue with the remaining steps of your workflow ...
+  //     // ... continue with the remaining steps of your workflow ...
 
-      res.sendStatus(200);
-    } else {
-      console.log(
-        'Invalid input. Please enter a valid number of hours worked.'
-      );
-      // Handle the case when the user enters an invalid number
-      res.sendStatus(400);
-    }
-  }
+  //     res.sendStatus(200);
+  //   } else {
+  //     console.log(
+  //       'Invalid input. Please enter a valid number of hours worked.'
+  //     );
+  //     // Handle the case when the user enters an invalid number
+  //     res.sendStatus(400);
+  //   }
+  // }
 });
 
 // Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
