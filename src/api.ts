@@ -3,7 +3,7 @@ import cors from 'cors';
 const nodemailer = require('nodemailer');
 
 var axios = require('axios');
-// const generatePDF = require('./generate_pdf');
+const generatePDF = require('./generate_pdf');
 // const fs = require('fs');
 
 export const app = express();
@@ -54,6 +54,8 @@ app.get('/ask', (req, res) => {
 });
 app.get('/media', async (req, res) => {
   // Create a transporter using the default SMTP transport
+
+  let pdfPath = generatePDF('120');
   console.log(process.env.EMAIL_PASSWORD);
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -67,8 +69,14 @@ app.get('/media', async (req, res) => {
   const mailOptions = {
     from: 'tomas.invoices@gmail.com', // Sender email address
     to: 'rinalditomas@gmail.com', // Recipient email address
-    subject: 'Test Email', // Email subject
-    text: 'Hello, this is a test email!' // Plain text body
+    subject: 'Invoice',
+    text: 'Please find attached the invoice PDF.',
+    attachments: [
+      {
+        filename: 'invoice.pdf', // The name to display for the attached file
+        path: pdfPath // The path to the PDF file you want to attach
+      }
+    ]
   };
 
   // Send the email
