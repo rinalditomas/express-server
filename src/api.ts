@@ -85,8 +85,12 @@ app.post('/webhook', async (req, res) => {
 
 // Schedule the task to run on the 1st of every month at 10:00 am
 cron.schedule('0 10 1 * *', async () => {
-  let message = 'How many hours did you work the past month?';
-  await sendMessageToWhatsApp(message);
+  try {
+    const message = 'How many hours did you work the past month?';
+    await sendMessageToWhatsApp(message);
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 // Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
