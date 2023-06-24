@@ -1,7 +1,7 @@
 var axios = require('axios');
 const nodemailer = require('nodemailer');
 
-let sendMessageToWhatsApp = async (message) => {
+export let sendMessageToWhatsApp = async (message) => {
   const data = {
     messaging_product: 'whatsapp',
     to: `${process.env.PHONE_TO}`,
@@ -25,7 +25,7 @@ let sendMessageToWhatsApp = async (message) => {
   return await axios(config);
 };
 
-let sendEmailWithInvoice = async (pdfPath) => {
+export let sendEmailWithInvoice = async (pdfPath) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -70,9 +70,3 @@ export function parseParameter(parameter) {
     invoiceNumber: invoiceNumber.trim()
   };
 }
-
-module.exports = {
-  sendEmailWithInvoice,
-  sendMessageToWhatsApp,
-  parseParameter
-};
