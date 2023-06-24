@@ -94,12 +94,20 @@ app.get('/media', async (req, res) => {
 });
 
 app.post('/webhook', async (req, res) => {
-
   const hoursWorked = req.body.entry[0].changes[0].value.messages[0].text.body;
+  const isNumber = !isNaN(hoursWorked);
 
-  console.log("This are the hours worked.'", hoursWorked);
-  res.status(200).send({ hoursWorked: hoursWorked });
-
+  if (isNumber) {
+    // The value is a number
+    let message = 'The value entered is a number';
+    sendMessageToWhatsApp(message);
+    res.status(200).send({ message: message });
+  } else {
+    // The value is not a number
+    let message = 'The value entered is not a number';
+    sendMessageToWhatsApp(message);
+    res.status(404).send({ message: message });
+  }
 
   // if (hoursWorked) {
   //   const pdfPath = await generatePDF(hoursWorked);
@@ -111,7 +119,6 @@ app.post('/webhook', async (req, res) => {
   //   await sendEmailWithInvoice(pdfPath);
   // }
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
-  
 });
 
 // Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
