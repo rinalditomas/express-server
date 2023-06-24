@@ -82,11 +82,11 @@ let sendEmailWithInvoice = async (pdfPath) => {
   });
 };
 
-app.get('/ask', async (req, res) => {
-  let message = 'How many hours did you work the past month?';
-  await sendMessageToWhatsApp(message);
-  res.status(200).send({ message: message });
-});
+// app.get('/ask', async (req, res) => {
+//   let message = 'How many hours did you work the past month?';
+//   await sendMessageToWhatsApp(message);
+//   res.status(200).send({ message: message });
+// });
 app.get('/media', async (req, res) => {
   // Create a transporter using the default SMTP transport
 
@@ -95,6 +95,11 @@ app.get('/media', async (req, res) => {
 });
 
 app.post('/webhook', async (req, res) => {
+  console.log(
+    'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
+    JSON.stringify(req.body, null, 2)
+  );
+
   const hoursWorked = req.body.entry[0].changes[0].value.messages[0].text.body;
   const isNumber = !isNaN(hoursWorked);
 
@@ -113,7 +118,8 @@ app.post('/webhook', async (req, res) => {
     res.status(200).send({ message: messagePDFCreated });
   } else {
     // The value is not a number
-    let message = 'The value entered is not a number, please enter a number to generate an invoice';
+    let message =
+      'The value entered is not a number, please enter a number to generate an invoice';
     sendMessageToWhatsApp(message);
     res.status(404).send({ message: message });
   }
