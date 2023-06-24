@@ -68,6 +68,8 @@ app.post('/webhook', async (req, res) => {
       sendMessageToWhatsApp(message);
       res.status(404).send({ message: message });
     }
+  } else {
+    res.status(500).send({ message: 'not valid' });
   }
 
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
