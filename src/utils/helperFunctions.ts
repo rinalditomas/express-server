@@ -47,15 +47,19 @@ let sendEmailWithInvoice = async (pdfPath) => {
       }
     ]
   };
-
+  console.log('sending the PDF via email.')
+  try {
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    });
+  } catch (error) {
+    console.log('There was an error sending the email.',error);
+  }
   // Send the email
-  await transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
 };
 
 module.exports = {
