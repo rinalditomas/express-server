@@ -1,9 +1,12 @@
 import express from 'express';
 import cors from 'cors';
-const nodemailer = require('nodemailer');
 
-var axios = require('axios');
 const generatePDF = require('./generate_pdf');
+const {
+  sendEmailWithInvoice,
+  sendMessageToWhatsApp
+} = require('./helperFunction');
+
 // const fs = require('fs');
 
 export const app = express();
@@ -21,79 +24,6 @@ app.get('/', (req, res) => {
 
 const api = express.Router();
 
-api.get('/hello', (req, res) => {
-  res.status(200).send({ message: 'hello world' });
-});
-
-function sendMessageToWhatsApp(message) {
-  const data = {
-    messaging_product: 'whatsapp',
-    to: `${process.env.PHONE_TO}`,
-    type: 'text',
-    text: {
-      preview_url: false,
-      body: message
-    }
-  };
-
-  const config = {
-    method: 'post',
-    url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
-    headers: {
-      Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-      'Content-Type': 'application/json'
-    },
-    data: JSON.stringify(data)
-  };
-
-  return axios(config);
-}
-
-let sendEmailWithInvoice = async (pdfPath) => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'tomas.invoices@gmail.com', // Your Gmail email address
-      pass: process.env.EMAIL_PASSWORD // Your Gmail password or an application-specific password if you have enabled 2-step verification
-    }
-  });
-
-  // Define the email options
-  const mailOptions = {
-    from: 'tomas.invoices@gmail.com', // Sender email address
-    to: 'rinalditomas@gmail.com', // Recipient email address
-    subject: 'Invoice',
-    text: 'Please find attached the invoice PDF.',
-    attachments: [
-      {
-        filename: 'invoice.pdf', // The name to display for the attached file
-        path: pdfPath // The path to the PDF file you want to attach
-      }
-    ]
-  };
-
-  // Send the email
-  await transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
-};
-
-// app.get('/ask', async (req, res) => {
-//   let message = 'How many hours did you work the past month?';
-//   await sendMessageToWhatsApp(message);
-//   res.status(200).send({ message: message });
-// });
-app.get('/media', async (req, res) => {
-  // Create a transporter using the default SMTP transport
-
-  let pdfPath = await generatePDF('120');
-  console.log('PDF PATH', pdfPath);
-});
-
 app.post('/webhook', async (req, res) => {
   if (
     req.body.entry &&
@@ -107,17 +37,26 @@ app.post('/webhook', async (req, res) => {
 
     if (isNumber) {
       // The value is a number
-      let messageToCreatePDF =
-        'The value entered is a number, we are creating your PDF';
-      sendMessageToWhatsApp(messageToCreatePDF);
-      const pdfPath = await generatePDF(hoursWorked);
-      console.log('This is the PDF Path', pdfPath);
-      let messagePDFCreated =
-        'PDF generated successfully, you will shortly receive it in your email.';
-      await sendMessageToWhatsApp(messagePDFCreated);
+      try {
+        let messageToCreatePDF =
+          'The value entered is a number, we are creating your PDF';
+        sendMessageToWhatsApp(messageToCreatePDF);
 
-      await sendEmailWithInvoice(pdfPath);
-      res.status(200).send({ message: messagePDFCreated });
+        const pdfPath = await generatePDF(hoursWorked);
+
+        console.log('This is the PDF Path', pdfPath);
+
+        let messagePDFCreated =
+          'PDF generated successfully, you will shortly receive it in your email.';
+        await sendMessageToWhatsApp(messagePDFCreated);
+
+        await sendEmailWithInvoice(pdfPath);
+
+        res.status(200).send({ message: messagePDFCreated });
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: error });
+      }
     } else {
       // The value is not a number
       let message =
