@@ -31,6 +31,10 @@ app.post('/webhook', async (req, res) => {
     req.body.entry[0].changes[0] &&
     req.body.entry[0].changes[0].value.messages[0]
   ) {
+    console.log(
+      'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
+      JSON.stringify(req.body, null, 2)
+    );
     const hoursWorked =
       req.body.entry[0].changes[0].value.messages[0].text.body;
     const isNumber = !isNaN(hoursWorked);

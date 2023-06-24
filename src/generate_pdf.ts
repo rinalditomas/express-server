@@ -67,72 +67,80 @@ function getWorkingDayRange() {
 }
 
 async function generatePDF(hours) {
+  console.log('The hours entered in the function to generate PDF', hours);
   const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
 
-const indexPath = path.resolve(__dirname, '../src/index.html');
+  try {
+    const indexPath = path.resolve(__dirname, '../src/index.html');
 
-  // Navigate to the HTML file or URL
-  await page.goto('file://' + indexPath);
+    // Navigate to the HTML file or URL
+    await page.goto('file://' + indexPath);
 
-  // Variables to be passed to the HTML
-  const invoiceNumber = 'Nº 0017';
-  const issueDate = formatDate();
-  let hourlyPrice = 20;
-  let hoursWorked = hours;
-  let totalAmountToCharge = hoursWorked * hourlyPrice;
+    // Variables to be passed to the HTML
+    const invoiceNumber = 'Nº 0017';
+    const issueDate = formatDate();
+    let hourlyPrice = 20;
+    let hoursWorked = hours;
+    let totalAmountToCharge = hoursWorked * hourlyPrice;
 
-  const { startDate, endDate } = getWorkingDayRange();
-  let workingDayRange = `(from ${startDate} to ${endDate})`;
+    const { startDate, endDate } = getWorkingDayRange();
+    let workingDayRange = `(from ${startDate} to ${endDate})`;
 
-  // Inject variables into the HTML page
-  await page.evaluate(
-    (
+    console.log('Changing values in PDF');
+    // Inject variables into the HTML page
+    await page.evaluate(
+      (
+        invoiceNumber,
+        issueDate,
+        workingDayRange,
+        totalAmountToCharge,
+        hoursWorked,
+        hourlyPrice
+      ) => {
+        // Access the DOM elements and set their innerText or value based on the variables
+        document.querySelector('#invoice-number').innerText = invoiceNumber;
+        document.querySelector('#issue-date').innerText = issueDate;
+        document.querySelector('#working-range').innerText = workingDayRange;
+        document.querySelector('#hourly-price').innerText = hourlyPrice;
+        document.querySelector('#hours-worked').innerText = hoursWorked;
+        document.querySelector('#total-hours').innerText = totalAmountToCharge;
+        document.querySelector('#total-before-tax').innerText =
+          totalAmountToCharge;
+        document.querySelector('#base-to-tax').innerText = totalAmountToCharge;
+        document.querySelector('#total-after-tax').innerText =
+          totalAmountToCharge;
+      },
       invoiceNumber,
       issueDate,
       workingDayRange,
       totalAmountToCharge,
       hoursWorked,
       hourlyPrice
-    ) => {
-      // Access the DOM elements and set their innerText or value based on the variables
-      document.querySelector('#invoice-number').innerText = invoiceNumber;
-      document.querySelector('#issue-date').innerText = issueDate;
-      document.querySelector('#working-range').innerText = workingDayRange;
-      document.querySelector('#hourly-price').innerText = hourlyPrice;
-      document.querySelector('#hours-worked').innerText = hoursWorked;
-      document.querySelector('#total-hours').innerText = totalAmountToCharge;
-      document.querySelector('#total-before-tax').innerText =
-        totalAmountToCharge;
-      document.querySelector('#base-to-tax').innerText = totalAmountToCharge;
-      document.querySelector('#total-after-tax').innerText =
-        totalAmountToCharge;
-    },
-    invoiceNumber,
-    issueDate,
-    workingDayRange,
-    totalAmountToCharge,
-    hoursWorked,
-    hourlyPrice
-  );
+    );
 
-  // Wait for any necessary content to load
-  await page.waitForSelector('#pdf-content');
+    // Wait for any necessary content to load
+    await page.waitForSelector('#pdf-content');
 
-  const pdfPath = 'invoice.pdf';
+    const pdfPath = 'invoice.pdf';
+    console.log('Generating the PDF...');
 
-  // Generate the PDF
-  await page.pdf({
-    path: 'invoice.pdf',
-    format: 'A4',
-    printBackground: true,
-    scale: 0.5
-  });
+    // Generate the PDF
+    await page.pdf({
+      path: 'invoice.pdf',
+      format: 'A4',
+      printBackground: true,
+      scale: 0.5
+    });
 
-  await browser.close();
+    await browser.close();
 
-  console.log(`PDF generated successfully! PDF path: ${pdfPath}`);
-  return pdfPath;
+    console.log(`PDF generated successfully! PDF path: ${pdfPath}`);
+    return pdfPath;
+  } catch (error) {
+    console.log('There was an error generating the pdf', error);
+    return error;
+  }
 }
 
 // generatePDF().catch((error) => {
