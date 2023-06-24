@@ -24,6 +24,15 @@ app.get('/', (req, res) => {
 
 const api = express.Router();
 
+function parseParameter(parameter) {
+  const [hours, invoiceNumber] = parameter.split(',');
+
+  return {
+    hours: parseInt(hours),
+    invoiceNumber: invoiceNumber.trim()
+  };
+}
+
 app.post('/webhook', async (req, res) => {
   console.log('Received webhook request:', JSON.stringify(req.body, null, 2));
 
@@ -38,11 +47,12 @@ app.post('/webhook', async (req, res) => {
     req.body.entry[0].changes[0].value.messages[0]
   ) {
     console.log('Message event detected');
+    const parameter = req.body.entry[0].changes[0].value.messages[0].text.body;
+
+    let parsedParameter = parseParameter(parameter);
 
     try {
-      const hoursWorked =
-        req.body.entry[0].changes[0].value.messages[0].text.body;
-      const isNumber = !isNaN(hoursWorked);
+      const isNumber = !isNaN(parsedParameter.hours);
 
       if (isNumber) {
         // The value is a number
@@ -50,7 +60,7 @@ app.post('/webhook', async (req, res) => {
           'The value entered is a number, we are creating your PDF';
         sendMessageToWhatsApp(messageToCreatePDF);
 
-        const pdfPath = await generatePDF(hoursWorked);
+        const pdfPath = await generatePDF(parsedParameter.hours, parsedParameter.invoiceNumber);
 
         console.log('This is the PDF Path', pdfPath);
 
@@ -77,7 +87,6 @@ app.post('/webhook', async (req, res) => {
     res.status(500).send({ message: 'Invalid request' });
   }
 });
-
 
 app.get('/ask', async (req, res) => {
   let message = 'How many hours did you work the past month?';

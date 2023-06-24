@@ -66,7 +66,7 @@ function getWorkingDayRange() {
   };
 }
 
-async function generatePDF(hours) {
+async function generatePDF(hours, numberOfInvoice) {
   console.log('The hours entered in the function to generate PDF', hours);
   const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
@@ -78,7 +78,7 @@ async function generatePDF(hours) {
     await page.goto('file://' + indexPath);
 
     // Variables to be passed to the HTML
-    const invoiceNumber = 'Nº 0017';
+    const invoiceNumber = `Nº ${numberOfInvoice}`;
     const issueDate = formatDate();
     let hourlyPrice = 20;
     let hoursWorked = hours;
