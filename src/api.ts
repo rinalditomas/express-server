@@ -99,15 +99,15 @@ app.post('/webhook', async (req, res) => {
 
   console.log("This are the hours worked.'", hoursWorked);
 
-  if (hoursWorked) {
-    const pdfPath = await generatePDF(hoursWorked);
-    console.log('This is the PDF Path', pdfPath);
-    let message =
-      'PDF generated successfully, you will shortly receive it in your email.';
-    await sendMessageToWhatsApp(message);
+  // if (hoursWorked) {
+  //   const pdfPath = await generatePDF(hoursWorked);
+  //   console.log('This is the PDF Path', pdfPath);
+  //   let message =
+  //     'PDF generated successfully, you will shortly receive it in your email.';
+  //   await sendMessageToWhatsApp(message);
 
-    await sendEmailWithInvoice(pdfPath);
-  }
+  //   await sendEmailWithInvoice(pdfPath);
+  // }
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
   
 });
