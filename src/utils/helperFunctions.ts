@@ -62,7 +62,17 @@ let sendEmailWithInvoice = async (pdfPath) => {
   // Send the email
 };
 
+export function parseParameter(parameter) {
+  const [hours, invoiceNumber] = parameter.split(',');
+
+  return {
+    hours: parseInt(hours),
+    invoiceNumber: invoiceNumber.trim()
+  };
+}
+
 module.exports = {
   sendEmailWithInvoice,
-  sendMessageToWhatsApp
+  sendMessageToWhatsApp,
+  parseParameter
 };
