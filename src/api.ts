@@ -96,8 +96,8 @@ app.get('/media', async (req, res) => {
 
 app.post('/webhook', async (req, res) => {
   if (
-    req.body.entry[0].changes[0].field &&
-    req.body.entry[0].changes[0].field === 'messages'
+    req.body.entry[0].changes[0] &&
+    req.body.entry[0].changes[0].value.messages[0]
   ) {
     const hoursWorked =
       req.body.entry[0].changes[0].value.messages[0].text.body;
