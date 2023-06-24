@@ -25,14 +25,14 @@ api.get('/hello', (req, res) => {
   res.status(200).send({ message: 'hello world' });
 });
 
-function sendMessage() {
+function sendMessageToWhatsApp(message) {
   const data = {
     messaging_product: 'whatsapp',
     to: `${process.env.PHONE_TO}`,
     type: 'text',
     text: {
       preview_url: false,
-      body: 'How many hours did you work the past month?'
+      body: message
     }
   };
 
@@ -49,14 +49,7 @@ function sendMessage() {
   return axios(config);
 }
 
-app.get('/ask', (req, res) => {
-  sendMessage();
-});
-app.get('/media', async (req, res) => {
-  // Create a transporter using the default SMTP transport
-
-  let pdfPath = await generatePDF('120');
-  console.log('PDF PATH', pdfPath);
+let sendEmailWithInvoice = async (pdfPath) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -80,77 +73,43 @@ app.get('/media', async (req, res) => {
   };
 
   // Send the email
-  transporter.sendMail(mailOptions, (error, info) => {
+  await transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.error('Error sending email:', error);
     } else {
       console.log('Email sent:', info.response);
     }
   });
+};
+
+app.get('/ask', (req, res) => {
+  let message = 'How many hours did you work the past month?';
+  sendMessageToWhatsApp(message);
+});
+app.get('/media', async (req, res) => {
+  // Create a transporter using the default SMTP transport
+
+  let pdfPath = await generatePDF('120');
+  console.log('PDF PATH', pdfPath);
 });
 
 app.post('/webhook', async (req, res) => {
-  console.log(
-    'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
-    JSON.stringify(req.body, null, 2)
-  );
-  const message = req.body.entry[0].changes[0].value;
 
-  console.log("THIS IS THE MESSAGE:'", message);
+  const hoursWorked = req.body.entry[0].changes[0].value.messages[0].text.body;
+
+  console.log("This are the hours worked.'", hoursWorked);
+
+  if (hoursWorked) {
+    const pdfPath = await generatePDF(hoursWorked);
+    console.log('This is the PDF Path', pdfPath);
+    let message =
+      'PDF generated successfully, you will shortly receive it in your email.';
+    await sendMessageToWhatsApp(message);
+
+    await sendEmailWithInvoice(pdfPath);
+  }
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
-  // if (message.type === 'text') {
-  //   const hoursWorked = parseFloat(message.text.body);
-
-  //   console.log(hoursWorked);
-  //   console.log(typeof hoursWorked);
-
-  //   if (!isNaN(hoursWorked)) {
-  //     // Call the function to generate the PDF
-  //     const pdfPath = await generatePDF(hoursWorked);
-
-  //     console.log(pdfPath);
-  //     // Send the generated PDF to the user
-  //     const messageData = {
-  //       messaging_product: 'whatsapp',
-  //       recipient_type: 'individual',
-  //       to: process.env.PHONE_TO,
-  //       type: 'document',
-  //       document: {
-  //         id: 'your-media-id',
-  //         filename: pdfPath
-  //       }
-  //     };
-
-  //     console.log('THIS IS MESSAGE DATA', messageData);
-  //     const config = {
-  //       method: 'post',
-  //       url: `https://graph.facebook.com/v16.0/${process.env.APP_ID}/messages`,
-  //       headers: {
-  //         Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-  //         'Content-Type': 'application/json'
-  //       },
-  //       data: JSON.stringify(messageData)
-  //     };
-
-  //     try {
-  //       let responseFromChat = await axios(config);
-
-  //       console.log(responseFromChat);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-
-  //     // ... continue with the remaining steps of your workflow ...
-
-  //     res.sendStatus(200);
-  //   } else {
-  //     console.log(
-  //       'Invalid input. Please enter a valid number of hours worked.'
-  //     );
-  //     // Handle the case when the user enters an invalid number
-  //     res.sendStatus(400);
-  //   }
-  // }
+  
 });
 
 // Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
