@@ -95,33 +95,34 @@ app.get('/media', async (req, res) => {
 });
 
 app.post('/webhook', async (req, res) => {
-  console.log(
-    'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
-    JSON.stringify(req.body, null, 2)
-  );
+  if (
+    req.body.entry[0].changes[0].field &&
+    req.body.entry[0].changes[0].field === 'messages'
+  ) {
+    const hoursWorked =
+      req.body.entry[0].changes[0].value.messages[0].text.body;
+    const isNumber = !isNaN(hoursWorked);
 
-  const hoursWorked = req.body.entry[0].changes[0].value.messages[0].text.body;
-  const isNumber = !isNaN(hoursWorked);
+    if (isNumber) {
+      // The value is a number
+      let messageToCreatePDF =
+        'The value entered is a number, we are creating your PDF';
+      sendMessageToWhatsApp(messageToCreatePDF);
+      const pdfPath = await generatePDF(hoursWorked);
+      console.log('This is the PDF Path', pdfPath);
+      let messagePDFCreated =
+        'PDF generated successfully, you will shortly receive it in your email.';
+      await sendMessageToWhatsApp(messagePDFCreated);
 
-  if (isNumber) {
-    // The value is a number
-    let messageToCreatePDF =
-      'The value entered is a number, we are creating your PDF';
-    sendMessageToWhatsApp(messageToCreatePDF);
-    const pdfPath = await generatePDF(hoursWorked);
-    console.log('This is the PDF Path', pdfPath);
-    let messagePDFCreated =
-      'PDF generated successfully, you will shortly receive it in your email.';
-    await sendMessageToWhatsApp(messagePDFCreated);
-
-    await sendEmailWithInvoice(pdfPath);
-    res.status(200).send({ message: messagePDFCreated });
-  } else {
-    // The value is not a number
-    let message =
-      'The value entered is not a number, please enter a number to generate an invoice';
-    sendMessageToWhatsApp(message);
-    res.status(404).send({ message: message });
+      await sendEmailWithInvoice(pdfPath);
+      res.status(200).send({ message: messagePDFCreated });
+    } else {
+      // The value is not a number
+      let message =
+        'The value entered is not a number, please enter a number to generate an invoice';
+      sendMessageToWhatsApp(message);
+      res.status(404).send({ message: message });
+    }
   }
 
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
