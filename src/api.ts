@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-// const nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 
 var axios = require('axios');
 const generatePDF = require('./generate_pdf');
@@ -49,42 +49,43 @@ function sendMessageToWhatsApp(message) {
   return axios(config);
 }
 
-// let sendEmailWithInvoice = async (pdfPath) => {
-//   const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//       user: 'tomas.invoices@gmail.com', // Your Gmail email address
-//       pass: process.env.EMAIL_PASSWORD // Your Gmail password or an application-specific password if you have enabled 2-step verification
-//     }
-//   });
+let sendEmailWithInvoice = async (pdfPath) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'tomas.invoices@gmail.com', // Your Gmail email address
+      pass: process.env.EMAIL_PASSWORD // Your Gmail password or an application-specific password if you have enabled 2-step verification
+    }
+  });
 
-//   // Define the email options
-//   const mailOptions = {
-//     from: 'tomas.invoices@gmail.com', // Sender email address
-//     to: 'rinalditomas@gmail.com', // Recipient email address
-//     subject: 'Invoice',
-//     text: 'Please find attached the invoice PDF.',
-//     attachments: [
-//       {
-//         filename: 'invoice.pdf', // The name to display for the attached file
-//         path: pdfPath // The path to the PDF file you want to attach
-//       }
-//     ]
-//   };
+  // Define the email options
+  const mailOptions = {
+    from: 'tomas.invoices@gmail.com', // Sender email address
+    to: 'rinalditomas@gmail.com', // Recipient email address
+    subject: 'Invoice',
+    text: 'Please find attached the invoice PDF.',
+    attachments: [
+      {
+        filename: 'invoice.pdf', // The name to display for the attached file
+        path: pdfPath // The path to the PDF file you want to attach
+      }
+    ]
+  };
 
-//   // Send the email
-//   await transporter.sendMail(mailOptions, (error, info) => {
-//     if (error) {
-//       console.error('Error sending email:', error);
-//     } else {
-//       console.log('Email sent:', info.response);
-//     }
-//   });
-// };
+  // Send the email
+  await transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+    } else {
+      console.log('Email sent:', info.response);
+    }
+  });
+};
 
-app.get('/ask', (req, res) => {
+app.get('/ask', async (req, res) => {
   let message = 'How many hours did you work the past month?';
-  sendMessageToWhatsApp(message);
+  await sendMessageToWhatsApp(message);
+  res.status(200).send({ message: message });
 });
 app.get('/media', async (req, res) => {
   // Create a transporter using the default SMTP transport
@@ -99,25 +100,24 @@ app.post('/webhook', async (req, res) => {
 
   if (isNumber) {
     // The value is a number
-    let message = 'The value entered is a number';
-    sendMessageToWhatsApp(message);
-    res.status(200).send({ message: message });
+    let messageToCreatePDF =
+      'The value entered is a number, we are creating your PDF';
+    sendMessageToWhatsApp(messageToCreatePDF);
+    const pdfPath = await generatePDF(hoursWorked);
+    console.log('This is the PDF Path', pdfPath);
+    let messagePDFCreated =
+      'PDF generated successfully, you will shortly receive it in your email.';
+    await sendMessageToWhatsApp(messagePDFCreated);
+
+    await sendEmailWithInvoice(pdfPath);
+    res.status(200).send({ message: messagePDFCreated });
   } else {
     // The value is not a number
-    let message = 'The value entered is not a number';
+    let message = 'The value entered is not a number, please enter a number to generate an invoice';
     sendMessageToWhatsApp(message);
     res.status(404).send({ message: message });
   }
 
-  // if (hoursWorked) {
-  //   const pdfPath = await generatePDF(hoursWorked);
-  //   console.log('This is the PDF Path', pdfPath);
-  //   let message =
-  //     'PDF generated successfully, you will shortly receive it in your email.';
-  //   await sendMessageToWhatsApp(message);
-
-  //   await sendEmailWithInvoice(pdfPath);
-  // }
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
 });
 
