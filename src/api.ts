@@ -98,6 +98,8 @@ app.post('/webhook', async (req, res) => {
   const hoursWorked = req.body.entry[0].changes[0].value.messages[0].text.body;
 
   console.log("This are the hours worked.'", hoursWorked);
+  res.status(200).send({ hoursWorked: hoursWorked });
+
 
   // if (hoursWorked) {
   //   const pdfPath = await generatePDF(hoursWorked);
