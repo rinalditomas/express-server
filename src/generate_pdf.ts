@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
-import path = require('path');
-declare const document: any; // Add this line to resolve the error
+import { join } from 'path';
+declare const document: any; 
 
 const months = [
   'January',
@@ -23,8 +23,7 @@ function formatDate() {
   const month = months[currentDate.getMonth()];
   const year = currentDate.getFullYear();
 
-  const formattedDate = `${day} ${month}, ${year}`;
-  return formattedDate;
+  return `${day} ${month}, ${year}`;
 }
 
 function getWorkingDayRange() {
@@ -66,29 +65,23 @@ function getWorkingDayRange() {
   };
 }
 
-async function generatePDF(hours, numberOfInvoice) {
-  console.log('The hours entered in the function to generate PDF', hours);
+export async function generatePDF(hours, invoiceNumber) {
   const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
 
   try {
-    const indexPath = path.resolve(__dirname, '../src/index.html');
+    const indexPath = join(__dirname, '../src/index.html');
 
-    // Navigate to the HTML file or URL
-    await page.goto('file://' + indexPath);
+    await page.goto(`file://${indexPath}`);
 
-    // Variables to be passed to the HTML
-    const invoiceNumber = `Nº ${numberOfInvoice}`;
     const issueDate = formatDate();
-    let hourlyPrice = 20;
-    let hoursWorked = hours;
-    let totalAmountToCharge = hoursWorked * hourlyPrice;
+    const hourlyPrice = 20;
+    const hoursWorked = hours;
+    const totalAmountToCharge = hoursWorked * hourlyPrice;
 
     const { startDate, endDate } = getWorkingDayRange();
-    let workingDayRange = `(from ${startDate} to ${endDate})`;
+    const workingDayRange = `(from ${startDate} to ${endDate})`;
 
-    console.log('Changing values in PDF');
-    // Inject variables into the HTML page
     await page.evaluate(
       (
         invoiceNumber,
@@ -98,7 +91,6 @@ async function generatePDF(hours, numberOfInvoice) {
         hoursWorked,
         hourlyPrice
       ) => {
-        // Access the DOM elements and set their innerText or value based on the variables
         document.querySelector('#invoice-number').innerText = invoiceNumber;
         document.querySelector('#issue-date').innerText = issueDate;
         document.querySelector('#working-range').innerText = workingDayRange;
@@ -119,15 +111,12 @@ async function generatePDF(hours, numberOfInvoice) {
       hourlyPrice
     );
 
-    // Wait for any necessary content to load
     await page.waitForSelector('#pdf-content');
 
     const pdfPath = 'invoice.pdf';
-    console.log('Generating the PDF...');
 
-    // Generate the PDF
     await page.pdf({
-      path: 'invoice.pdf',
+      path: pdfPath,
       format: 'A4',
       printBackground: true,
       scale: 0.5
@@ -138,13 +127,7 @@ async function generatePDF(hours, numberOfInvoice) {
     console.log(`PDF generated successfully! PDF path: ${pdfPath}`);
     return pdfPath;
   } catch (error) {
-    console.log('There was an error generating the pdf', error);
-    return error;
+    console.error('Error generating PDF:', error);
+    throw error;
   }
 }
-
-// generatePDF().catch((error) => {
-//   console.error("Error generating PDF:", error);
-// });
-
-module.exports = generatePDF;
