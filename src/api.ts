@@ -25,23 +25,27 @@ app.get('/', (req, res) => {
 const api = express.Router();
 
 app.post('/webhook', async (req, res) => {
+  console.log('Received webhook request:', JSON.stringify(req.body, null, 2));
+
   if (
+    req.body &&
     req.body.entry &&
+    req.body.entry[0] &&
     req.body.entry[0].changes &&
     req.body.entry[0].changes[0] &&
+    req.body.entry[0].changes[0].value &&
+    req.body.entry[0].changes[0].value.messages &&
     req.body.entry[0].changes[0].value.messages[0]
   ) {
-    console.log(
-      'HERE IS THE CONSOLE.LOG IN WEBHOOK POST',
-      JSON.stringify(req.body, null, 2)
-    );
-    const hoursWorked =
-      req.body.entry[0].changes[0].value.messages[0].text.body;
-    const isNumber = !isNaN(hoursWorked);
+    console.log('Message event detected');
 
-    if (isNumber) {
-      // The value is a number
-      try {
+    try {
+      const hoursWorked =
+        req.body.entry[0].changes[0].value.messages[0].text.body;
+      const isNumber = !isNaN(hoursWorked);
+
+      if (isNumber) {
+        // The value is a number
         let messageToCreatePDF =
           'The value entered is a number, we are creating your PDF';
         sendMessageToWhatsApp(messageToCreatePDF);
@@ -57,23 +61,23 @@ app.post('/webhook', async (req, res) => {
         await sendEmailWithInvoice(pdfPath);
 
         res.status(200).send({ message: messagePDFCreated });
-      } catch (error) {
-        console.error(error);
-        res.status(500).send({ message: error });
+      } else {
+        // The value is not a number
+        let message =
+          'The value entered is not a number, please enter a number to generate an invoice';
+        sendMessageToWhatsApp(message);
+        res.status(404).send({ message: message });
       }
-    } else {
-      // The value is not a number
-      let message =
-        'The value entered is not a number, please enter a number to generate an invoice';
-      sendMessageToWhatsApp(message);
-      res.status(404).send({ message: message });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: error });
     }
   } else {
-    res.status(500).send({ message: 'not valid' });
+    console.log('Invalid webhook request');
+    res.status(500).send({ message: 'Invalid request' });
   }
-
-  // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
 });
+
 
 app.get('/ask', async (req, res) => {
   let message = 'How many hours did you work the past month?';
