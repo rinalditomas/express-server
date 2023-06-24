@@ -1,13 +1,14 @@
 import express from 'express';
 import cors from 'cors';
+const cron = require('node-cron');
 
 const generatePDF = require('./generate_pdf');
 const {
   sendEmailWithInvoice,
-  sendMessageToWhatsApp
+  sendMessageToWhatsApp,
+  parseParameter
 } = require('./utils/helperFunctions');
 
-// const fs = require('fs');
 
 export const app = express();
 
@@ -23,15 +24,6 @@ app.get('/', (req, res) => {
 });
 
 const api = express.Router();
-
-function parseParameter(parameter) {
-  const [hours, invoiceNumber] = parameter.split(',');
-
-  return {
-    hours: parseInt(hours),
-    invoiceNumber: invoiceNumber.trim()
-  };
-}
 
 app.post('/webhook', async (req, res) => {
   console.log('Received webhook request:', JSON.stringify(req.body, null, 2));
@@ -60,7 +52,10 @@ app.post('/webhook', async (req, res) => {
           'The value entered is a number, we are creating your PDF';
         sendMessageToWhatsApp(messageToCreatePDF);
 
-        const pdfPath = await generatePDF(parsedParameter.hours, parsedParameter.invoiceNumber);
+        const pdfPath = await generatePDF(
+          parsedParameter.hours,
+          parsedParameter.invoiceNumber
+        );
 
         console.log('This is the PDF Path', pdfPath);
 
@@ -88,10 +83,10 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-app.get('/ask', async (req, res) => {
+// Schedule the task to run on the 1st of every month at 10:00 am
+cron.schedule('0 10 1 * *', async () => {
   let message = 'How many hours did you work the past month?';
   await sendMessageToWhatsApp(message);
-  res.status(200).send({ message: message });
 });
 
 // Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
