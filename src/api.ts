@@ -1,14 +1,12 @@
 import express from 'express';
 import cors from 'cors';
-const cron = require('node-cron');
-
-const generatePDF = require('./generate_pdf');
-const {
+import cron from 'node-cron';
+import {
   sendEmailWithInvoice,
   sendMessageToWhatsApp,
   parseParameter
-} = require('./utils/helperFunctions');
-
+} from './utils/helperFunctions';
+import { generatePDF } from './generate_pdf';
 
 export const app = express();
 
@@ -93,13 +91,9 @@ cron.schedule('0 10 1 * *', async () => {
   }
 });
 
-// Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
-// info on verification request payload: https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
+
 app.get('/webhook', (req, res) => {
-  /**
-   * UPDATE YOUR VERIFY TOKEN
-   *This will be the Verify Token value when you set up webhook
-   **/
+
   const verify_token = process.env.VERIFY_TOKEN;
 
   // Parse params from the webhook verification request
