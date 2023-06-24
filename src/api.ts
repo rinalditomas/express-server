@@ -5,7 +5,7 @@ const generatePDF = require('./generate_pdf');
 const {
   sendEmailWithInvoice,
   sendMessageToWhatsApp
-} = require('./helperFunction');
+} = require('./utils/helperFunctions');
 
 // const fs = require('fs');
 
@@ -67,6 +67,12 @@ app.post('/webhook', async (req, res) => {
   }
 
   // // info on WhatsApp text message payload: https://developers.facebook.com/docs/w
+});
+
+app.get('/ask', async (req, res) => {
+  let message = 'How many hours did you work the past month?';
+  await sendMessageToWhatsApp(message);
+  res.status(200).send({ message: message });
 });
 
 // Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
