@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-const nodemailer = require('nodemailer');
+// const nodemailer = require('nodemailer');
 
 var axios = require('axios');
 const generatePDF = require('./generate_pdf');
@@ -49,38 +49,38 @@ function sendMessageToWhatsApp(message) {
   return axios(config);
 }
 
-let sendEmailWithInvoice = async (pdfPath) => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'tomas.invoices@gmail.com', // Your Gmail email address
-      pass: process.env.EMAIL_PASSWORD // Your Gmail password or an application-specific password if you have enabled 2-step verification
-    }
-  });
+// let sendEmailWithInvoice = async (pdfPath) => {
+//   const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: 'tomas.invoices@gmail.com', // Your Gmail email address
+//       pass: process.env.EMAIL_PASSWORD // Your Gmail password or an application-specific password if you have enabled 2-step verification
+//     }
+//   });
 
-  // Define the email options
-  const mailOptions = {
-    from: 'tomas.invoices@gmail.com', // Sender email address
-    to: 'rinalditomas@gmail.com', // Recipient email address
-    subject: 'Invoice',
-    text: 'Please find attached the invoice PDF.',
-    attachments: [
-      {
-        filename: 'invoice.pdf', // The name to display for the attached file
-        path: pdfPath // The path to the PDF file you want to attach
-      }
-    ]
-  };
+//   // Define the email options
+//   const mailOptions = {
+//     from: 'tomas.invoices@gmail.com', // Sender email address
+//     to: 'rinalditomas@gmail.com', // Recipient email address
+//     subject: 'Invoice',
+//     text: 'Please find attached the invoice PDF.',
+//     attachments: [
+//       {
+//         filename: 'invoice.pdf', // The name to display for the attached file
+//         path: pdfPath // The path to the PDF file you want to attach
+//       }
+//     ]
+//   };
 
-  // Send the email
-  await transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error('Error sending email:', error);
-    } else {
-      console.log('Email sent:', info.response);
-    }
-  });
-};
+//   // Send the email
+//   await transporter.sendMail(mailOptions, (error, info) => {
+//     if (error) {
+//       console.error('Error sending email:', error);
+//     } else {
+//       console.log('Email sent:', info.response);
+//     }
+//   });
+// };
 
 app.get('/ask', (req, res) => {
   let message = 'How many hours did you work the past month?';
