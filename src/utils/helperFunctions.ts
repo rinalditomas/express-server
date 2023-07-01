@@ -47,7 +47,7 @@ export let sendEmailWithInvoice = async (pdfPath) => {
       }
     ]
   };
-  console.log('sending the PDF via email.')
+  console.log('sending the PDF via email.');
   try {
     await transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -57,13 +57,26 @@ export let sendEmailWithInvoice = async (pdfPath) => {
       }
     });
   } catch (error) {
-    console.log('There was an error sending the email.',error);
+    console.log('There was an error sending the email.', error);
   }
   // Send the email
 };
 
-export function parseParameter(parameter) {
+export function parseParameter(parameter: string): {
+  hours: number;
+  invoiceNumber: string;
+} {
+  if (typeof parameter !== 'string') {
+    throw new TypeError('Parameter must be a string');
+  }
+
   const [hours, invoiceNumber] = parameter.split(',');
+
+  if (!hours || !invoiceNumber) {
+    throw new Error(
+      'Parameter must contain at least two values separated by a comma'
+    );
+  }
 
   return {
     hours: parseInt(hours),
