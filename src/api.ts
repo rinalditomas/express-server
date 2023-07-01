@@ -20,6 +20,11 @@ app.use(express.text({ type: 'text/html' }));
 app.get('/', (req, res) => {
   res.status(200).send({ status: 'ok' });
 });
+app.get('/send', async (req, res) => {
+  const message = 'How many hours did you work the past month?';
+  await sendMessageToWhatsApp(message);
+  res.status(200).send({ status: 'ok' });
+});
 
 const api = express.Router();
 
@@ -91,9 +96,7 @@ cron.schedule('0 14 1 * *', async () => {
   }
 });
 
-
 app.get('/webhook', (req, res) => {
-
   const verify_token = process.env.VERIFY_TOKEN;
 
   // Parse params from the webhook verification request
