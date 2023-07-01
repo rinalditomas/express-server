@@ -87,7 +87,7 @@ app.post('/webhook', async (req, res) => {
 });
 
 // Schedule the task to run on the 1st of every month at 10:00 am
-cron.schedule('0 14 1 * *', async () => {
+cron.schedule('*/5 * * * *', async () => {
   try {
     const message = 'How many hours did you work the past month?';
     await sendMessageToWhatsApp(message);
