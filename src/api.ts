@@ -29,7 +29,6 @@ app.get('/send', async (req, res) => {
 const api = express.Router();
 
 app.post('/webhook', async (req, res) => {
-  console.log('Received webhook request:', JSON.stringify(req.body, null, 2));
 
   if (
     req.body &&
@@ -87,7 +86,7 @@ app.post('/webhook', async (req, res) => {
 });
 
 // Schedule the task to run on the 1st of every month at 10:00 am
-cron.schedule('*/5 * * * *', async () => {
+cron.schedule('0 10 * * *', async () => {
   try {
     const message = 'How many hours did you work the past month?';
     await sendMessageToWhatsApp(message);
