@@ -62,10 +62,10 @@ export let sendEmailWithInvoice = async (pdfPath) => {
   // Send the email
 };
 
-export function parseParameter(parameter: string): {
+export async function parseParameter(parameter: string): Promise<{
   hours: number;
   invoiceNumber: string;
-} {
+}> {
   if (typeof parameter !== 'string') {
     throw new TypeError('Parameter must be a string');
   }
@@ -75,7 +75,7 @@ export function parseParameter(parameter: string): {
   if (!hours || !invoiceNumber || !/^\d+,\d+$/.test(parameter)) {
     let message =
       'Parameter must be in the format [HOURS WORKED],[INVOICE NUMBER]. For example: 176,0018';
-    sendMessageToWhatsApp(message);
+    await sendMessageToWhatsApp(message);
     throw new TypeError(message);
   }
 
