@@ -42,7 +42,7 @@ export let sendEmailWithInvoice = async (pdfPath) => {
     text: 'Please find attached the invoice PDF.',
     attachments: [
       {
-        filename: 'invoice.pdf', // The name to display for the attached file
+        filename: pdfPath, // The name to display for the attached file
         path: pdfPath // The path to the PDF file you want to attach
       }
     ]
