@@ -72,9 +72,9 @@ export function parseParameter(parameter: string): {
 
   const [hours, invoiceNumber] = parameter.split(',');
 
-  if (!hours || !invoiceNumber) {
+  if (!hours || !invoiceNumber || !/^\d+,\d+$/.test(parameter)) {
     let message =
-      'Parameter must contain at least two values separated by a comma. The expected format is: [HOURS WORKED],[INVOICE NUMBER].';
+      'Parameter must be in the format [HOURS WORKED],[INVOICE NUMBER]. For example: 176,0018';
     sendMessageToWhatsApp(message);
   }
 
