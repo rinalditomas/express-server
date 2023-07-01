@@ -29,7 +29,6 @@ app.get('/send', async (req, res) => {
 const api = express.Router();
 
 app.post('/webhook', async (req, res) => {
-
   if (
     req.body &&
     req.body.entry &&
@@ -43,41 +42,43 @@ app.post('/webhook', async (req, res) => {
     console.log('Message event detected');
     const parameter = req.body.entry[0].changes[0].value.messages[0].text.body;
 
-    let parsedParameter = parseParameter(parameter);
+    let parsedParameter = await parseParameter(parameter);
 
-    try {
-      const isNumber = !isNaN(parsedParameter.hours);
+    if (parseParameter) {
+      try {
+        const isNumber = !isNaN(parsedParameter.hours);
 
-      if (isNumber) {
-        // The value is a number
-        let messageToCreatePDF =
-          'The value entered is a number, we are creating your PDF';
-        sendMessageToWhatsApp(messageToCreatePDF);
+        if (isNumber) {
+          // The value is a number
+          let messageToCreatePDF =
+            'The value entered is a number, we are creating your PDF';
+          sendMessageToWhatsApp(messageToCreatePDF);
 
-        const pdfPath = await generatePDF(
-          parsedParameter.hours,
-          parsedParameter.invoiceNumber
-        );
+          const pdfPath = await generatePDF(
+            parsedParameter.hours,
+            parsedParameter.invoiceNumber
+          );
 
-        console.log('This is the PDF Path', pdfPath);
+          console.log('This is the PDF Path', pdfPath);
 
-        let messagePDFCreated =
-          'PDF generated successfully, you will shortly receive it in your email.';
-        await sendMessageToWhatsApp(messagePDFCreated);
+          let messagePDFCreated =
+            'PDF generated successfully, you will shortly receive it in your email.';
+          await sendMessageToWhatsApp(messagePDFCreated);
 
-        await sendEmailWithInvoice(pdfPath);
+          await sendEmailWithInvoice(pdfPath);
 
-        res.status(200).send({ message: messagePDFCreated });
-      } else {
-        // The value is not a number
-        let message =
-          'The value entered is not a number, please enter a number to generate an invoice';
-        sendMessageToWhatsApp(message);
-        res.status(404).send({ message: message });
+          res.status(200).send({ message: messagePDFCreated });
+        } else {
+          // The value is not a number
+          let message =
+            'The value entered is not a number, please enter a number to generate an invoice';
+          sendMessageToWhatsApp(message);
+          res.status(404).send({ message: message });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: error });
       }
-    } catch (error) {
-      console.error(error);
-      res.status(500).send({ message: error });
     }
   } else {
     console.log('Invalid webhook request');
