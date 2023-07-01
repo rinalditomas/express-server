@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 import { join } from 'path';
-declare const document: any; 
+declare const document: any;
 
 const months = [
   'January',
@@ -64,6 +64,18 @@ function getWorkingDayRange() {
     endDate: formattedLastDay
   };
 }
+export function getPreviousMonth(): string {
+  const currentDate = new Date();
+  const previousMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() - 1
+  );
+
+  const month = previousMonth.toLocaleString('default', { month: 'long' });
+  const year = previousMonth.getFullYear();
+
+  return `${month} ${year}`;
+}
 
 export async function generatePDF(hours, invoiceNumber) {
   const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
@@ -78,6 +90,7 @@ export async function generatePDF(hours, invoiceNumber) {
     const hourlyPrice = 20;
     const hoursWorked = hours;
     const totalAmountToCharge = hoursWorked * hourlyPrice;
+    let previousMonth = getPreviousMonth();
 
     const { startDate, endDate } = getWorkingDayRange();
     const workingDayRange = `(from ${startDate} to ${endDate})`;
@@ -91,7 +104,9 @@ export async function generatePDF(hours, invoiceNumber) {
         hoursWorked,
         hourlyPrice
       ) => {
-        document.querySelector('#invoice-number').innerText = invoiceNumber;
+        document.querySelector(
+          '#invoice-number'
+        ).innerText = `Nº ${invoiceNumber}`;
         document.querySelector('#issue-date').innerText = issueDate;
         document.querySelector('#working-range').innerText = workingDayRange;
         document.querySelector('#hourly-price').innerText = hourlyPrice;
@@ -113,7 +128,7 @@ export async function generatePDF(hours, invoiceNumber) {
 
     await page.waitForSelector('#pdf-content');
 
-    const pdfPath = 'invoice.pdf';
+    const pdfPath = `Invoice Pharm-it ${previousMonth}.pdf`;
 
     await page.pdf({
       path: pdfPath,
