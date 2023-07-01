@@ -76,6 +76,7 @@ export function parseParameter(parameter: string): {
     let message =
       'Parameter must be in the format [HOURS WORKED],[INVOICE NUMBER]. For example: 176,0018';
     sendMessageToWhatsApp(message);
+    throw new TypeError(message);
   }
 
   return {
