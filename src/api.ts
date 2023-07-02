@@ -79,6 +79,8 @@ app.post('/webhook', async (req, res) => {
         console.error(error);
         res.status(500).send({ message: error });
       }
+    } else {
+      res.status(500).send({ message: 'Invalid request' });
     }
   } else {
     console.log('Invalid webhook request');
