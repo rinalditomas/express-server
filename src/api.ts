@@ -29,6 +29,8 @@ app.get('/send', async (req, res) => {
 const api = express.Router();
 
 app.post('/webhook', async (req, res) => {
+
+  console.log(req.body)
   if (
     req.body &&
     req.body.entry &&
@@ -39,7 +41,7 @@ app.post('/webhook', async (req, res) => {
     req.body.entry[0].changes[0].value.messages &&
     req.body.entry[0].changes[0].value.messages[0]
   ) {
-    console.log('Message event detected');
+    // console.log('Message event detected');
     const parameter = req.body.entry[0].changes[0].value.messages[0].text.body;
 
     let parsedParameter = await parseParameter(parameter);
@@ -59,7 +61,7 @@ app.post('/webhook', async (req, res) => {
             parsedParameter.invoiceNumber
           );
 
-          console.log('This is the PDF Path', pdfPath);
+          // console.log('This is the PDF Path', pdfPath);
 
           let messagePDFCreated =
             'PDF generated successfully, you will shortly receive it in your email.';
@@ -67,7 +69,7 @@ app.post('/webhook', async (req, res) => {
 
           await sendEmailWithInvoice(pdfPath);
 
-          res.status(200).send({ message: messagePDFCreated });
+          res.status(200).send({ message: 'Message received' });
         } else {
           // The value is not a number
           let message =
