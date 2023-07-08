@@ -29,7 +29,7 @@ app.get('/send', async (req, res) => {
 const api = express.Router();
 
 app.post('/webhook', async (req, res) => {
-  console.log(JSON.parse(req.body));
+  console.log(JSON.stringify(req.body));
   if (
     req.body &&
     req.body.entry &&
