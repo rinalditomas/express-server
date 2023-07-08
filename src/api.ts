@@ -67,27 +67,27 @@ app.post('/webhook', async (req, res) => {
 
           await sendEmailWithInvoice(pdfPath);
 
-          res.status(200)
+          res.status(200);
         } else {
           // The value is not a number
           let message =
             'The value entered is not a number, please enter a number to generate an invoice';
           await sendMessageToWhatsApp(message);
-          res.status(200)
+          res.status(200);
         }
       } catch (error) {
         res.status(200);
       }
     } else {
-      res.status(200)
+      res.status(200);
     }
   } else {
-    res.status(200)
+    res.status(200);
   }
 });
 
 // Schedule the task to run on the 1st of every month at 10:00 am
-cron.schedule('0 10 * * *', async () => {
+cron.schedule('0 10 1 * *', async () => {
   try {
     const message = 'How many hours did you work the past month?';
     await sendMessageToWhatsApp(message);
