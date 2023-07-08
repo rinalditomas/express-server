@@ -76,7 +76,7 @@ export async function parseParameter(parameter: string): Promise<{
     let message =
       'Parameter must be in the format [HOURS WORKED],[INVOICE NUMBER]. For example: 176,0018';
     await sendMessageToWhatsApp(message);
-    throw new TypeError(message);
+    return null;
   }
 
   return {
