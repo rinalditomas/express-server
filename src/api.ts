@@ -29,7 +29,6 @@ app.get('/send', async (req, res) => {
 const api = express.Router();
 
 app.post('/webhook', async (req, res) => {
-  console.log(JSON.stringify(req.body));
   if (
     req.body &&
     req.body.entry &&
@@ -53,7 +52,7 @@ app.post('/webhook', async (req, res) => {
           // The value is a number
           let messageToCreatePDF =
             'The value entered is a number, we are creating your PDF';
-          sendMessageToWhatsApp(messageToCreatePDF);
+          await sendMessageToWhatsApp(messageToCreatePDF);
 
           const pdfPath = await generatePDF(
             parsedParameter.hours,
@@ -73,19 +72,19 @@ app.post('/webhook', async (req, res) => {
           // The value is not a number
           let message =
             'The value entered is not a number, please enter a number to generate an invoice';
-          sendMessageToWhatsApp(message);
-          res.status(404).send({ message: message });
+          await sendMessageToWhatsApp(message);
+          res.status(200).send({ message: message });
         }
       } catch (error) {
         console.error(error);
-        res.status(500).send({ message: error });
+        res.status(200).send({ message: error });
       }
     } else {
-      res.status(500).send({ message: 'Invalid request' });
+      res.status(200).send({ message: 'Invalid request' });
     }
   } else {
     console.log('Invalid webhook request');
-    res.status(500).send({ message: 'Invalid request' });
+    res.status(200).send({ message: 'Invalid request' });
   }
 });
 
