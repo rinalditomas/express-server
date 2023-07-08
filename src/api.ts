@@ -67,24 +67,22 @@ app.post('/webhook', async (req, res) => {
 
           await sendEmailWithInvoice(pdfPath);
 
-          res.status(200).send({ message: 'Message received' });
+          res.status(200)
         } else {
           // The value is not a number
           let message =
             'The value entered is not a number, please enter a number to generate an invoice';
           await sendMessageToWhatsApp(message);
-          res.status(200).send({ message: message });
+          res.status(200)
         }
       } catch (error) {
-        console.error(error);
-        res.status(200).send({ message: error });
+        res.status(200);
       }
     } else {
-      res.status(200).send({ message: 'Invalid request' });
+      res.status(200)
     }
   } else {
-    console.log('Invalid webhook request');
-    res.status(200).send({ message: 'Invalid request' });
+    res.status(200)
   }
 });
 
